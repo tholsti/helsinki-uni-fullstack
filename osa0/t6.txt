@@ -1,0 +1,19 @@
+title Uusi muistiinpano single page appissa
+
+note over selain:
+selain luo uuden note-olion seka
+lisaa uuden elementin DOM-apin avulla
+ja renderoi paivitetyn sisallon.
+JS lahettaa pyynnon palvelimelle.
+end note
+
+selain->palvelin: HTTP POST https://fullstack-exampleapp.herokuapp.com/new_note_spa
+
+note over palvelin: 
+Palvelin tallentaa uuden muistiinpanon 
+sen muistissa olevaan muistiinpanolistaan 
+(ei tietokantaan)
+end note
+
+palvelin-->selain: response 201: created
+
