@@ -20,7 +20,7 @@ const Notification = ({ message }) => {
     return null;
   }
 
-  const { type, personName } = message;
+  const { type, personName, error } = message;
 
   if (type === 'addSuccess') {
     return (
@@ -53,6 +53,22 @@ const Notification = ({ message }) => {
       </div>
     )
   }
+  
+  if (type === 'updateValidationError') {
+    return (
+      <div style={{...notificationStyle, border: '3px solid red'}}>
+        {error}.
+      </div>
+    )
+  }
+
+  if (type === 'addError') {
+    return (
+      <div style={{...notificationStyle, border: '3px solid red'}}>
+        {error}
+      </div>
+    )
+  }
 }
 
 const App = () => {
@@ -65,7 +81,7 @@ const App = () => {
 
   React.useEffect(() => {
     getPersons()
-      .then(response => setPersons(response.data));
+      .then(response => console.log(response.data) || setPersons(response.data));
   }, [])
 
   const personExists = () => {
@@ -93,7 +109,11 @@ const App = () => {
           setMessage(null) 
         }, 2000))
         .catch(err => {
-          setMessage({ type: 'updateError', personName: newName })
+          if (err.response.data.error) {
+            setMessage({ type: 'updateValidationError', error: err.response.data.error })
+          } else {
+            setMessage({ type: 'updateError', personName: newName })
+          }
         })
         .then(() => setTimeout(() => {
           setMessage(null)
@@ -112,7 +132,14 @@ const App = () => {
       .then(() => setMessage({type: 'addSuccess', personName: newName }))
       .then(() => setTimeout(() => { 
         setMessage(null) 
-      }, 2000));
+      }, 2000))
+      .catch(err => {
+        setMessage({type: 'addError', error: err.response.data.error})
+        console.log(err.response);
+      })
+      .then(() => setTimeout(() => { 
+        setMessage(null) 
+      }, 4000))
 
     setNewName('');
     setNewNumber('');
@@ -149,7 +176,7 @@ const App = () => {
         setNewNumber={setNewNumber}
         addName={addName}
         newName={newName}
-        newNumber={newNumber}
+        // newNumber={newNumber}
       />
       <h3>Numbers</h3>
       <NumbersList 
