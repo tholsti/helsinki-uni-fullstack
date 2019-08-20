@@ -78,6 +78,13 @@ test('returns 400 if no title or url provided', async () => {
         .expect(400);
 });
 
+test('deletes blog post', async () => {
+    await api.delete(`/api/blogs/delete/${blogs[0]._id}`);
+
+    const response = await api.get('/api/blogs');
+    expect(response.body.length).toBe(blogs.length - 1);
+});
+
 afterAll(() => {
     mongoose.connection.close();
 });
