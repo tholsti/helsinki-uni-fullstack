@@ -27,11 +27,45 @@ const add = async newBlog => {
         return resp.data;    
 
     } catch (error) {
-        console.log(error.response.data.error);
-        
         return error.response.data;
     }
-
 };
 
-export default { getAll, add, setToken };
+const like = async blog => {
+    const update = {
+        ...blog,
+        likes: blog.likes + 1,
+        user: blog.user ? blog.user.id : undefined,
+    }
+    
+    try {
+        const resp = await axios
+            .put(`${baseUrl}/update/${blog.id}`, update);
+        return resp.data;
+    } catch (error) {
+        return error.response.data;
+    }
+};
+
+const remove = async blog => {
+    try {
+        const resp = await axios
+            .delete(`${baseUrl}/delete/${blog.id}`, 
+                {
+                    headers: {
+                        Authorization: token,
+                    }   
+                })
+        return resp.data;
+    } catch (e) {
+        return e.response.data;
+    }
+}
+
+export default { 
+    add,
+    getAll,
+    like,
+    remove,
+    setToken
+};

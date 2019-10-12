@@ -4,31 +4,38 @@ import blogService from './services/blogs';
 import Blog from './components/Blog';
 import AddBlog from './components/AddBlog';
 import Message from './components/Message';
+import Togglable from './components/Togglable'; 
+import useField from './services/hooks/useField';
+import { getInputProperties } from './services/utils';
 
 function App() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
     const [user, setUser] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [blogs, setBlogs] = useState(null);
     const [token, setToken] = useState('');
+    const [addBlog, setAddBlog] = useState(false);
 
     useEffect(() => {
+        if (!window.localStorage.getItem('loggedInUser')) {
+            return;
+        }
         setUser(JSON.parse(window.localStorage.getItem('loggedInUser')));
         blogService.setToken(JSON.parse(window.localStorage.getItem('loggedInUser')).token);
     }, []);
 
     useEffect(() => {
         blogService.getAll().then(blogs => {
+            blogs.sort((a, b) => b.likes - a.likes);
             setBlogs(blogs);
         });
     }, []);
 
     const handleLogin = async (event) => {
-        event.preventDefault()
+        event.preventDefault();
         try {
             const user = await loginService.login({
-                username, password
+                username: username.value, 
+                password: password.value,
             });
 
             window.localStorage.setItem('loggedInUser', JSON.stringify(user));
@@ -36,13 +43,11 @@ function App() {
             blogService.setToken(user.token);
 
             setUser(user)
-            setUsername('')
-            setPassword('')
         } catch (exception) {
             setErrorMessage('Invalid password or username');
             setTimeout(() => {
                 setErrorMessage(null)
-            }, 5000)
+            }, 5000);
         }
     }
 
@@ -51,27 +56,26 @@ function App() {
         setUser(null);
     };
 
+    const username = useField('text');
+    const password = useField('password');
+
     if (user === null) {
         return (
             <div>
                 {errorMessage && <Message msg={errorMessage} type={'error'}/>}
                 <form onSubmit={handleLogin}>
                     <div>
-                        username
-                        <input
-                            type="text"
-                            value={username}
-                            name="Username"
-                            onChange={({ target }) => setUsername(target.value)}
+                        username: 
+                        <input 
+                            name='Username'
+                            {...getInputProperties(username)}
                         />
                     </div>
                     <div>
                         password
                         <input
-                            type="password"
-                            value={password}
                             name="Password"
-                            onChange={({ target }) => setPassword(target.value)}
+                            { ...getInputProperties(username) }
                         />
                     </div>
                     <button type="submit">login</button>
@@ -86,13 +90,16 @@ function App() {
                 <div>
                     {user.name} logged in
                 </div>
-                <AddBlog/>
+                <Togglable isVisible={addBlog}>
+                    <AddBlog/>
+                </Togglable>
+                <button onClick={() => setAddBlog(!addBlog)}>{!addBlog ? 'Add new blog' : 'Cancel'}</button>
                 <div>
                     <h2>List of blogs</h2>
                     {!blogs
                         ? setBlogs[blogService.getAll()]
                         : blogs && blogs.map(blog =>
-                            <Blog key={blog.id} blog={blog} />
+                            <Blog key={blog.id} blog={blog} user={user}/>
                         )
                     }
                 </div>

@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import blogService from '../services/blogs';
 import Message from './Message';
+import useField from '../services/hooks/useField';
+import { getInputProperties } from '../services/utils';
 
 const AddBlog = () => {
-    const [title, setTitle] = useState('');
-    const [author, setAuthor] = useState('');
-    const [url, setUrl] = useState('');
     const [successMessage, setSuccessMessage] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
 
@@ -13,11 +12,10 @@ const AddBlog = () => {
         e.preventDefault();
         
         const response = await blogService.add({
-            title,
-            author,
-            url
+            title: title.value,
+            author: author.value,
+            url: url.value,
         });
-        console.log(response);
         
         const { error } = response;
 
@@ -29,9 +27,12 @@ const AddBlog = () => {
         setTimeout(() => {
             setErrorMessage(null);
             setSuccessMessage(null);
-        }, 3000)
-        
+        }, 5000)        
     };
+
+    const title = useField('text');
+    const author = useField('text');
+    const url = useField('text');
 
     return (
         <>
@@ -40,24 +41,9 @@ const AddBlog = () => {
             
             <h2>Create new blog</h2>
             <form onSubmit={submit}>
-                <input
-                    type={'text'}
-                    value={title}
-                    placeholder={'title'}
-                    onChange={({ target }) => setTitle(target.value)}
-                />
-                <input
-                    type={'text'}
-                    value={author}
-                    placeholder={'author'}
-                    onChange={({ target }) => setAuthor(target.value)}
-                />
-                <input
-                    type={'text'}
-                    value={url}
-                    placeholder={'url'}
-                    onChange={({ target }) => setUrl(target.value)}
-                />
+                <input {...getInputProperties(title)} placeholder={'Title'}/>
+                <input {...getInputProperties(author)} placeholder={'Author'}/>
+                <input {...getInputProperties(url)} placeholder={'URL'}/>
                 <button type={'submit'} >
                     Create
                 </button>
