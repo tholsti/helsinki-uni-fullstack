@@ -1,15 +1,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { createNewAnecdote } from '../reducers/anecdoteReducer';
 import { newAnecdoteNotification } from '../reducers/notificationReducer';
+import { addNewAnecdote } from '../reducers/anecdoteReducer';
 
-const AnecdoteForm = ({ createNewAnecdote, newAnecdoteNotification }) => {
+const AnecdoteForm = ({ addNewAnecdote, newAnecdoteNotification }) => {
     
-    const createAnecdote = e => {
+    const createAnecdote = async e => {
         e.preventDefault();
-        const text = e.target.newAnecdote.value;
-        createNewAnecdote(text);
-        newAnecdoteNotification(text);
+        const content = e.target.newAnecdote.value;
+        e.target.newAnecdote.value = '';
+        // const anecdote = await createNewAnecdote(content);
+        // addNewAnecdote(anecdote);
+        addNewAnecdote(content);
+
+        newAnecdoteNotification(content);
         setTimeout(() => {
             newAnecdoteNotification('');
         }, 5000);
@@ -28,4 +32,4 @@ const AnecdoteForm = ({ createNewAnecdote, newAnecdoteNotification }) => {
     );
 }
 
-export default connect(null, { createNewAnecdote, newAnecdoteNotification })(AnecdoteForm);
+export default connect(null, { addNewAnecdote, newAnecdoteNotification })(AnecdoteForm);

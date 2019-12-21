@@ -1,56 +1,53 @@
-const anecdotesAtStart = [
-  'If it hurts, do it more often',
-  'Adding manpower to a late software project makes it later!',
-  'The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
-  'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
-  'Premature optimization is the root of all evil.',
-  'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
-]
+import { getAnecdotes, saveNewAnecdote, updateVote } from '../services/anecdotes'
 
-const createId = () => (100000 * Math.random()).toFixed(0)
-
-const asObject = (anecdote) => {
-  return {
-    content: anecdote,
-    id: createId(),
-    votes: 0
+export const addVote = anecdote => {
+  return async dispatch => {
+    await updateVote(anecdote);
+    dispatch({
+      type: 'ADD_VOTE',
+      id: anecdote.id,
+    })
   }
 }
 
-const initialState = anecdotesAtStart.map(asObject)
+export const addNewAnecdote = content => {
+  return async dispatch => {
+    const anecdote = await saveNewAnecdote({
+      content
+    });
+    
+    dispatch({
+      type: 'ADD_NEW_ANECDOTE',
+      data: anecdote,
+    })
+  }
+}
 
-export const addVote = anecdote => ({
-  type: 'ADD_VOTE',
-  id: anecdote.id,
-})
+export const initializeAnecdotes = () => {
+  return async dispatch => {
+    const anecdotes = await getAnecdotes();
+    dispatch({
+      type: 'INIT_ANECDOTES',
+      data: anecdotes
+    })
+  }
+}
 
-export const createNewAnecdote = text => ({
-  type: 'CREATE_NEW_ANECDOTE',
-  text,
-})
-
-export const anecdoteReducer = (state = initialState, action) => {
+export const anecdoteReducer = (state = [], action) => {
   switch (action.type) {
     case 'ADD_VOTE':
       const anecdotes = [...state];
-      const anecdote = anecdotes.find(a => a.id === action.id);
-      anecdote.votes++;
       anecdotes.sort((a, b) => b.votes - a.votes);
-
       return anecdotes;
-    case 'CREATE_NEW_ANECDOTE':
-      const newAnecdote = {
-        content: action.text,
-        id: createId(),
-        votes: 0,
-      }
+    case 'ADD_NEW_ANECDOTE':
       return [
         ...state,
-        newAnecdote,
+        action.data,
       ]
+    case 'INIT_ANECDOTES':
+      return action.data;
     default:
       break;
   }
-
   return state
 }
