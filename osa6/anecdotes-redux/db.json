@@ -31,9 +31,14 @@
       "votes": 0
     },
     {
-      "votes": 6,
+      "votes": 7,
       "content": "b",
       "id": "CTiuKxx"
+    },
+    {
+      "votes": 1,
+      "content": "abc",
+      "id": "-XbtfZ4"
     }
   ]
 }

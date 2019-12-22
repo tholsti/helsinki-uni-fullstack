@@ -1,21 +1,24 @@
 const initialNotification = '';
 
-export const newVoteNotification = text => ({
-    type: 'NEW_VOTE_NOTIFICATION',
-    msg: text === '' ? '' : `You voted for "${text}"`,
-});
+export const setNewNotification = (text, durationInSeconds) => {
+    return async dispatch => {
+        setTimeout(() => {
+            dispatch({
+                type: 'SET_NOTIFICATION',
+                msg: ''
+            })
+        }, durationInSeconds * 1000);
 
-export const newAnecdoteNotification = text => ({
-    type: 'NEW_ANECDOTE_NOTIFICATION',
-    msg: text === '' ? '' : `You created new anecdote "${text}"`,
-});
+        dispatch({
+            type: 'SET_NOTIFICATION',
+            msg: text
+        })
+    }
+}
 
 export const notificationReducer = (state = initialNotification, action) => {
     switch (action.type) {
-        case 'NEW_VOTE_NOTIFICATION': {
-            return action.msg;
-        }
-        case 'NEW_ANECDOTE_NOTIFICATION': {
+        case 'SET_NOTIFICATION': {
             return action.msg;
         }
         default: {
